@@ -61,9 +61,6 @@ dmypy.json
 # dotenv
 .env
 
-# Data
-data/
-
 # Compiled class file
 *.class
 
