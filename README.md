@@ -7,10 +7,8 @@ A real-time, voice agent that can be run on robots. This was specifically made f
 
 ## Features
 
-- Push-to-talk voice interaction
-- Real-time transcription and voice response
+- Real-time transcription and voice response on a Textual Interface (TUI)
 - Modular, customizable tools and persona config (see `config.py`)
-- Stylish TUI interface (Textual)
 - Uses OpenAI's streaming Realtime API
 - Easily extensible for any robot, event, or conference
 
