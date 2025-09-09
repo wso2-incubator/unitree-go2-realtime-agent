@@ -8,7 +8,6 @@ import logging
 from datetime import datetime
 from typing import Any, cast
 
-import time
 import dotenv
 import aiohttp
 
@@ -26,6 +25,11 @@ from openai import AsyncOpenAI, OpenAI
 from openai.types.beta.realtime.session import Session
 from openai.resources.beta.realtime.realtime import AsyncRealtimeConnection
 
+from tools.info_lookup import load_all_docs, find_relevant_info
+from tools.con_api import fetch_event_agenda, fetch_speaker_info
+
+from utils.audio_util import CHANNELS, SAMPLE_RATE, AudioPlayerAsync
+
 from config import (
     instructions,
     tools,
@@ -38,11 +42,6 @@ from config import (
     input_audio_transcription,
     temperature
 )
-
-from tools.info_lookup import load_all_docs, find_relevant_info
-from tools.con_api import fetch_event_agenda, fetch_speaker_info
-
-from utils.audio_util import CHANNELS, SAMPLE_RATE, AudioPlayerAsync
 
 # Load environment variables from .env file
 dotenv.load_dotenv(override=True)
@@ -100,7 +99,7 @@ class RealtimeApp(App[None]):
         self.last_audio_item_id = None
         self.should_send_audio = asyncio.Event()
         self.connected = asyncio.Event()
-        self.server_url = f"http://localhost:{os.getenv('FLASK_PORT', 5051)}"
+        self.server_url = f"http://localhost:{os.getenv('SDK_CONTROLLER_PORT', 5051)}"
 
     @override
     def compose(self) -> ComposeResult:
@@ -109,8 +108,7 @@ class RealtimeApp(App[None]):
             with Horizontal(id="top-bar"):
                 yield SessionDisplay(id="session-display")
                 yield AudioStatusIndicator(id="status-indicator")
-            # yield RichLog(id="bottom-pane", wrap=True, highlight=True, markup=True)
-            # small one line to show function_call/decision
+
             yield ToolUseIndicator(id="tool-use-indicator")
             with Vertical(id="log-pane"):
                 input_log = RichLog(id="input-log", wrap=True,
@@ -192,8 +190,6 @@ class RealtimeApp(App[None]):
                     continue
 
                 if event.type == "response.done":
-
-                    self.run_worker(self.set_last_talk_time())
 
                     if echo_cancellation == True:
                         # If echo cancellation is on then the mic audio has stopped, and should be resumed after playback
@@ -300,17 +296,6 @@ class RealtimeApp(App[None]):
         self.should_send_audio.set()
         logging.info("Audio playback finished, resuming mic.")
 
-    async def set_last_talk_time(self):
-        # Wait until audio player finishes playback
-        while not self.audio_player.is_idle():
-            await asyncio.sleep(0.1)
-        # check if human is detected
-        # Resume mic input
-        #set last audio playback time
-        self.last_talked_time = datetime.now()
-        self.is_talking = False
-        logging.info("Audio playback finished, resuming mic.")
-
     async def _get_connection(self) -> AsyncRealtimeConnection:
         await self.connected.wait()
         assert self.connection is not None
@@ -380,7 +365,7 @@ class RealtimeApp(App[None]):
                 if self.session and self.session.turn_detection is None:
                     # The default in the API is that the model will automatically detect when the user has
                     # stopped talking and then start responding itself.
-                    #
+                
                     # However if we're in manual `turn_detection` mode then we need to
                     # manually tell the model to commit the audio buffer and start responding.
                     conn = await self._get_connection()
