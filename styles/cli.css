@@ -1,0 +1,84 @@
+Screen {
+  background: #1a1b26; /* Dark blue-grey background */
+}
+
+/* This new rule styles the container for the top two widgets */
+#top-bar {
+  dock: top;      /* Pins the container to the top of the screen */
+  height: 3;      /* Gives the bar a fixed height */
+  width: 100%;
+}
+
+Container {
+  border: double rgb(91, 164, 91);
+}
+
+Horizontal {
+  width: 100%;
+}
+
+#input-container {
+  height: 5; /* Explicit height for input container */
+  margin: 1 1;
+  padding: 1 2;
+}
+
+Input {
+  width: 80%;
+  height: 3; /* Explicit height for input */
+}
+
+Button {
+  width: 20%;
+  height: 3; /* Explicit height for button */
+}
+
+#bottom-pane {
+  width: 100%;
+  /* The height property was removed so it automatically fills the remaining space */
+  border: round rgb(205, 133, 63);
+  content-align: center middle;
+}
+
+/* --- MODIFIED WIDGETS FOR TOP BAR --- */
+
+#session-display {
+  width: 1fr; /* Take up 1 fraction of the available space */
+  content-align: left middle; /* Align text to the left */
+  text-align: center;
+  background: #2a2b36;
+  border: solid rgb(91, 164, 91);
+  margin-right: 1; /* Add a margin to create a gap */
+}
+
+#tool-use-indicator {
+  width: 1fr; /* Take up 1 fraction of the available space */
+  content-align: center middle; /* Center the text */
+  background: #2a2b36;
+  border: solid rgb(91, 164, 91);
+  text-align: center;
+}
+
+#status-indicator {
+  width: 1fr; /* Take up 1 fraction of the available space */
+  content-align: right middle; /* Align text to the right */
+  background: #2a2b36;
+  border: solid rgb(91, 164, 91);
+  text-align: center;
+}
+
+#input-log {
+  width: 100%;
+  border: round rgb(205, 133, 63);
+  content-align: center middle;
+}
+
+#output-log {
+  width: 100%;
+  border: round rgb(205, 133, 63);
+  content-align: center middle;
+}
+
+Static {
+  color: white;
+}
