@@ -5,7 +5,6 @@ import json
 import base64
 import asyncio
 import logging
-from datetime import datetime
 from typing import Any, cast
 
 import dotenv
@@ -13,7 +12,6 @@ import aiohttp
 
 from typing_extensions import override
 
-# from sdk_controller.flask_server import action
 from textual import events
 from textual.app import App, ComposeResult
 from textual.widgets import Button, Static, RichLog
@@ -30,7 +28,7 @@ from tools.con_api import fetch_event_agenda, fetch_speaker_info
 
 from utils.audio_util import CHANNELS, SAMPLE_RATE, AudioPlayerAsync
 
-from config import (
+from agent_config import (
     instructions,
     tools,
     turn_detection,
@@ -410,22 +408,10 @@ class RealtimeApp(App[None]):
             return f"Failed to take photo: {e}"
         
     async def handle_go2_action(self, action: str) -> str:
-        api_timeout = 20
+        api_timeout = 60
         logging.info(f"Handling Go2 action via HTTP: {action}")
         url = f"{self.server_url}/action/{action.lower()}"
 
-        if action.lower() == "dance":
-            api_timeout = 35
-        elif action.lower() == "special_dance":
-            api_timeout = 50
-        elif action.lower() == "rise_from_sit_down":
-            api_timeout = 12
-        elif action.lower() == "get_up":
-            api_timeout = 12
-        elif action.lower() == "lie_down":
-            api_timeout = 12
-        elif action.lower() == "sit_down":
-            api_timeout = 10
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.post(url, timeout=api_timeout) as response:
