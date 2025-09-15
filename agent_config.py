@@ -2,7 +2,7 @@ model = "gpt-4o-mini-realtime-preview"
 voice = "ash"
 
 # Set to True to enable echo cancellation
-echo_cancellation = False
+echo_cancellation = True
 
 timeout = 25*60
 

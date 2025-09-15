@@ -97,7 +97,7 @@ class RealtimeApp(App[None]):
         self.should_send_audio = asyncio.Event()
         self.connected = asyncio.Event()
         self.conf_api_base_url = os.getenv('CONF_API_BASE_URL', 'http://localhost:5100')
-        self.server_url = f"{os.getenv('SDK_SERVICE__HOST', 'http://localhost:5051')}"
+        self.robot_service_host = f"{os.getenv('ROBOT_SERVICE__HOST', 'http://localhost:5051')}"
 
     @override
     def compose(self) -> ComposeResult:
@@ -213,8 +213,6 @@ class RealtimeApp(App[None]):
                             # Dispatch to your handler
                             if name == "get_wso2_info":
                                 result = await self.handle_wso2_info(args["topic"])
-                            elif name == "get_wso2con_info":
-                                result = await self.handle_wso2con_info(args["topic"])
                             elif name == "control_go2":
                                 result = await self.handle_go2_action(args["action"])
                             elif name == "take_photo":
@@ -422,7 +420,7 @@ class RealtimeApp(App[None]):
     async def handle_take_photo(self) -> str:
         try:
             logging.info(f"Handling Go2 action via HTTP: take_photo")
-            url = f"{self.server_url}/take_photo"
+            url = f"{self.robot_service_host}/take_photo"
             async with aiohttp.ClientSession() as session:
                 async with session.post(url) as response:
                     if response.status == 200:
@@ -440,7 +438,7 @@ class RealtimeApp(App[None]):
     async def handle_go2_action(self, action: str) -> str:
         api_timeout = 60
         logging.info(f"Handling Go2 action via HTTP: {action}")
-        url = f"{self.server_url}/action/{action.lower()}"
+        url = f"{self.robot_service_host}/action/{action.lower()}"
 
         try:
             async with aiohttp.ClientSession() as session:

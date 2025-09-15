@@ -36,7 +36,7 @@ pip install -r requirements.txt
 
 1. Copy `.env.example` to `.env` and fill in your OpenAI API key.
 2. Edit `config.py` to set your agent's persona, event, and tool configuration.
-3. (Optional) Implement your own info/event API logic in `tools/` (see `con_api.py` for WSO2Con mock example).
+3. Run the Conference Service in `tools/` (Run `python conference_service.py` for WSO2Con mock example).
 4. Setup the Unitree Go2 SDK Server (Optional - Refer to instructions below)
 5. Run the app:
 
@@ -60,7 +60,7 @@ python main.py
 
 - `main.py` — App entry point
 - `audio_util.py` — Audio streaming utilities
-- `tools/` — Info lookup and event API helpers (see `con_api.py` for mock WSO2Con)
+- `tools/` — Info lookup and event API helpers (see `conference_service.py` for mock WSO2Con)
 - `data/` — Static markdown data
 - `styles/cli.css` — Custom styling for the TUI
 - `.env.example` — Sample environment config
@@ -98,6 +98,11 @@ pip3 install -r requirements.txt
 python3 sdk_server.py <network_interface>
 # Example: python3 sdk_server.py eth0
 # Or for test mode: python3 sdk_server.py test
+```
+
+### 4. Start the Conference Service
+```bash
+python conference_service.py
 ```
 
 ### FAQ
