@@ -97,7 +97,7 @@ class RealtimeApp(App[None]):
         self.last_audio_item_id = None
         self.should_send_audio = asyncio.Event()
         self.connected = asyncio.Event()
-        self.server_url = f"http://localhost:{os.getenv('SDK_CONTROLLER_PORT', 5051)}"
+        self.server_url = f"{os.getenv('SDK_SERVICE_URL', 'http://localhost:5051')}"
 
     @override
     def compose(self) -> ComposeResult:
@@ -289,7 +289,6 @@ class RealtimeApp(App[None]):
         # Wait until audio player finishes playback
         while not self.audio_player.is_idle():
             await asyncio.sleep(0.1)
-        # check if human is detected
         # Resume mic input
         self.should_send_audio.set()
         logging.info("Audio playback finished, resuming mic.")
