@@ -7,3 +7,5 @@ openai[realtime]
 python-dotenv
 flask
 aiohttp
+fastapi
+uvicorn

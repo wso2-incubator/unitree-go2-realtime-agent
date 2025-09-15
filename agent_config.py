@@ -26,12 +26,6 @@ instructions = (
     "Its open-source offerings include WSO2 API Manager for API lifecycle management, WSO2 Integrator for system integration, and WSO2 Identity Server for identity and access management. The SaaS portfolio includes Bijira (API management), Devant (integration), Asgardeo (IAM), and Choreo, an internal developer platform."
     "WSO2 is celebrating its 20th anniversary now."
     "If you don't know something, suggest them to visit the WSO2 website or ask a WSO2 staff member at the conference."
-    "You help people by answering questions about specific WSO2 products, by using the get_wso2_info tool."
-    "If someone asks about conference schedule tell them 'Let me check' and then use the get_wso2con_info tool with topic 'event_agenda' and wait for the response. "
-    "If someone asks about speakers tell them 'Let me check' and then use the get_wso2con_info tool with topic 'speakers' and wait for the response. "
-    "You can also perform simple physical actions using the control_go2 tool "
-    "like a heart, forward, backward, turn_right, turn_left, dance, special_dance, stretch"
-    "If someone wants a photo, use the take_photo tool to take and upload the photo."
 )
 
 input_audio_noise_reduction = {
@@ -70,19 +64,36 @@ tools = [{"type": "function",
               "required": ["topic"]
           }
           },
-         {"type": "function",
-          "name": "get_wso2con_info",
-          "description": "Fetch information about WSO2Con sessions.",
-         "parameters": {
-             "type": "object",
-             "properties": {
-                 "topic": {
-                     "type": "string",
-                     "description": "A conference session keyword"
-                 }
-             },
-             "required": ["topic"]
-         }},
+{
+    "type": "function",
+    "name": "get_wso2con_speakers",
+    "description": "Fetch information about WSO2Con speakers.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "topic": {
+          "type": "string",
+          "description": "A keyword related to the conference session or speaker"
+        }
+      },
+      "required": ["topic"]
+    }
+  },
+  {
+    "type": "function",
+    "name": "get_wso2con_agenda",
+    "description": "Fetch agenda details for WSO2Con sessions.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "topic": {
+          "type": "string",
+          "description": "A keyword related to the conference session agenda"
+        }
+      },
+      "required": ["topic"]
+    }
+  },
   {
     "type": "function",
     "name": "take_photo",

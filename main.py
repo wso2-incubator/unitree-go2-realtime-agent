@@ -24,7 +24,6 @@ from openai.types.beta.realtime.session import Session
 from openai.resources.beta.realtime.realtime import AsyncRealtimeConnection
 
 from tools.info_lookup import load_all_docs, find_relevant_info
-from tools.con_api import fetch_event_agenda, fetch_speaker_info
 
 from utils.audio_util import CHANNELS, SAMPLE_RATE, AudioPlayerAsync
 
@@ -97,7 +96,8 @@ class RealtimeApp(App[None]):
         self.last_audio_item_id = None
         self.should_send_audio = asyncio.Event()
         self.connected = asyncio.Event()
-        self.server_url = f"{os.getenv('SDK_SERVICE_URL', 'http://localhost:5051')}"
+        self.conf_api_base_url = os.getenv('CONF_API_BASE_URL', 'http://localhost:5100')
+        self.server_url = f"{os.getenv('SDK_SERVICE__HOST', 'http://localhost:5051')}"
 
     @override
     def compose(self) -> ComposeResult:
@@ -219,6 +219,10 @@ class RealtimeApp(App[None]):
                                 result = await self.handle_go2_action(args["action"])
                             elif name == "take_photo":
                                 result = await self.handle_take_photo()
+                            elif name == "get_wso2con_agenda":
+                                result = await self.handle_wso2con_agenda()
+                            elif name == "get_wso2con_speakers":
+                                result = await self.handle_wso2con_speakers()
                             else:
                                 result = "Function not recognized."
 
@@ -377,16 +381,43 @@ class RealtimeApp(App[None]):
         return find_relevant_info(topic, docs)
         # return f"WSO2 info about '{topic}': This is a placeholder response."
 
-    async def handle_wso2con_info(self, topic: str) -> str:
-        # Use the mock con_api for agenda and speaker info
-        if topic == "event_agenda":
-            agenda = await fetch_event_agenda()
-            return f"Agenda: {agenda}"
-        elif topic == "speakers":
-            speakers = await fetch_speaker_info()
-            return f"Speakers: {speakers}"
-        else:
-            return f"No event info API is configured. You asked about '{topic}'."
+    async def handle_wso2con_agenda(self) -> str:
+
+        try:
+            logging.info(f"Handling WSO2Con agenda info via HTTP")
+            url = f"{self.conf_api_base_url}/agenda"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        return f"Agenda: {data}"
+                    else:
+                        error_data = await response.json()
+                        return f"Agenda fetch failed: {error_data.get('error', 'Unknown error')}"
+        except asyncio.TimeoutError:
+            return f"Request timed out for agenda'"
+        except Exception as e:
+            logging.exception("Exception during handle_wso2con_agenda")
+            return f"Failed to fetch agenda: {e}"
+            
+    async def handle_wso2con_speakers(self) -> str:
+        
+        try:
+            logging.info(f"Handling WSO2Con speakers info via HTTP")
+            url = f"{self.conf_api_base_url}/speakers"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        return f"Speakers: {data}"
+                    else:
+                        error_data = await response.json()
+                        return f"Speakers fetch failed: {error_data.get('error', 'Unknown error')}"
+        except asyncio.TimeoutError:
+            return f"Request timed out for speakers'"
+        except Exception as e:
+            logging.exception("Exception during handle_wso2con_speakers")
+            return f"Failed to fetch speakers: {e}"
         
     async def handle_take_photo(self) -> str:
         try:

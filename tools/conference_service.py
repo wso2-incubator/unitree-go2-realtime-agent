@@ -1,12 +1,11 @@
+from fastapi import FastAPI
+import uvicorn
 
-# Mock event/conference API for testing/demo purposes
-import asyncio
+app = FastAPI(title="Conference Mock API", version="1.0.0")
 
-async def fetch_event_agenda() -> str:
-	"""
-	Return a static mock WSO2Con agenda for testing.
-	"""
-	await asyncio.sleep(0.1)  # Simulate async call
+@app.get("/agenda")
+def get_agenda():
+	"""Get the static mock event agenda."""
 	return [
 		{
 			"agenda_day": "Day 1",
@@ -34,20 +33,25 @@ async def fetch_event_agenda() -> str:
 		}
 	]
 
-async def fetch_speaker_info() -> str:
-	"""
-	Return a static mock WSO2Con speaker list for testing.
-	"""
-	await asyncio.sleep(0.1)  # Simulate async call
+@app.get("/speakers")
+def get_speakers():
+	"""Get the static mock speaker list."""
 	return [
 		{
 			"name": "Sanjiva Weerawarana",
 			"title": "Founder & CEO, WSO2",
 			"summary": "Sanjiva is the founder and CEO of WSO2, a visionary in open-source middleware."
 		},
-        {
-            "name": "Rania Khalaf",
-            "title": "Chief AI Officer, WSO2",
-            "summary": "Rania leads AI strategy and innovation at WSO2, driving the company's AI initiatives."
-        }
+		{
+			"name": "Rania Khalaf",
+			"title": "Chief AI Officer, WSO2",
+			"summary": "Rania leads AI strategy and innovation at WSO2, driving the company's AI initiatives."
+		}
 	]
+
+if __name__ == "__main__":
+	print("\nStarting Conference Mock API on http://localhost:8000")
+	print("Available endpoints:")
+	print("  GET /agenda    - Get event agenda")
+	print("  GET /speakers  - Get speaker information")
+	uvicorn.run(app, host="0.0.0.0", port=5100)
