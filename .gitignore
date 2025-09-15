@@ -6,6 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
+robot_controller/unitree_sdk2_python
+
 # Distribution / packaging
 .Python
 env/
