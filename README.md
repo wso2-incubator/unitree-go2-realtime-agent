@@ -96,8 +96,8 @@ pip3 install -r requirements.txt
 
 ```bash
 python3 control_service.py <network_interface>
-# Example: python3 sdk_server.py eth0
-# Or for test mode: python3 sdk_server.py test
+# Example: python3 control_service.py eth0
+# Or for test mode: python3 control_service.py test
 ```
 
 ### 4. Start the Conference Service
