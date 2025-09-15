@@ -65,7 +65,7 @@ python main.py
 - `styles/cli.css` — Custom styling for the TUI
 - `.env.example` — Sample environment config
 
-# Unitree Go2 SDK Flask Server (for robot control) - Python 3.11.9 recommended
+# Unitree Go2 Control Service(for robot control) - Python 3.11.9 recommended
 
 
 This is a concurrency-safe Flask server implementation for the Unitree Go2 Python SDK. It has been tested on the Unitree Go2 Edu version. The server can be run from an external computer (with the network interface configured appropriately), directly on the Jetson module (using network interface `eth0`), or in test mode (without a Unitree Go2 robot).
@@ -76,7 +76,7 @@ This is a concurrency-safe Flask server implementation for the Unitree Go2 Pytho
 If you encounter issues, refer to the [Unitree SDK website](https://github.com/unitreerobotics/unitree_sdk2_python).
 
 ```bash
-cd sdk_controller
+cd robot_controller
 git clone https://github.com/unitreerobotics/unitree_sdk2_python.git
 cd unitree_sdk2_python
 python -m venv .venv
@@ -95,7 +95,7 @@ pip3 install -r requirements.txt
 ### 3. Start the Flask SDK Server
 
 ```bash
-python3 sdk_server.py <network_interface>
+python3 control_service.py <network_interface>
 # Example: python3 sdk_server.py eth0
 # Or for test mode: python3 sdk_server.py test
 ```
@@ -130,8 +130,7 @@ pip3 install -e .
 
 ## License
 
-MIT — see `LICENSE` file.
-
+Apache 2.0 — see `LICENSE` file.
 
 # Credits
 

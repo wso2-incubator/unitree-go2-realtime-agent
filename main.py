@@ -19,7 +19,7 @@ from textual.reactive import reactive
 from textual.containers import Container
 from textual.containers import Horizontal, Vertical
 
-from openai import AsyncOpenAI, OpenAI
+from openai import AsyncOpenAI
 from openai.types.beta.realtime.session import Session
 from openai.resources.beta.realtime.realtime import AsyncRealtimeConnection
 
@@ -33,7 +33,7 @@ from agent_config import (
     turn_detection,
     model,
     voice,
-    timeout,
+    timer,
     echo_cancellation,
     input_audio_noise_reduction,
     input_audio_transcription,
@@ -97,7 +97,7 @@ class RealtimeApp(App[None]):
         self.should_send_audio = asyncio.Event()
         self.connected = asyncio.Event()
         self.conf_api_base_url = os.getenv('CONF_API_BASE_URL', 'http://localhost:5100')
-        self.robot_service_host = f"{os.getenv('ROBOT_SERVICE__HOST', 'http://localhost:5051')}"
+        self.robot_service_host = os.getenv('ROBOT_SERVICE__HOST', 'http://localhost:5051')
 
     @override
     def compose(self) -> ComposeResult:
@@ -127,7 +127,7 @@ class RealtimeApp(App[None]):
             logging.info("Starting audio player...")
             self.run_worker(self.send_mic_audio())
             logging.info("Starting session restart timer...")
-            self.run_worker(self.session_restart_timer(timeout=timeout))
+            self.run_worker(self.session_restart_timer(timer=timer))
         except Exception as e:
             logging.info(f"Error during mount: {e}")
             self.query_one(RichLog).write(f"Error during mount: {e}")
@@ -276,10 +276,10 @@ class RealtimeApp(App[None]):
                     self.audio_player.add_data(bytes_data)
                     continue
 
-    async def session_restart_timer(self, timeout=25 * 60):
+    async def session_restart_timer(self, timer=25 * 60):
 
         while True:
-            await asyncio.sleep(timeout)  # 25 minutes
+            await asyncio.sleep(timer)  # 25 minutes
             log = self.query_one(RichLog)
             log.clear()
             log.write("Restarting session before timeout...")

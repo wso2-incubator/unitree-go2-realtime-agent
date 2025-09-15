@@ -23,9 +23,9 @@ pip3 install -r requirements.txt
 ### 3. Start the Flask SDK Server
 
 ```bash
-python3 sdk_server.py <network_interface>
-# Example: python3 sdk_server.py eth0
-# Or for test mode: python3 sdk_server.py test
+python3 control_service.py <network_interface>
+# Example: python3 control_service.py eth0
+# Or for test mode: python3 control_service.py test
 ```
 
 ### FAQ
