@@ -4,7 +4,7 @@
 If you encounter issues, refer to the [Unitree SDK website](https://github.com/unitreerobotics/unitree_sdk2_python).
 
 ```bash
-cd sdk_controller
+cd robot_controller
 git clone https://github.com/unitreerobotics/unitree_sdk2_python.git
 cd unitree_sdk2_python
 python -m venv .venv
@@ -87,4 +87,4 @@ The captured image will be saved to `uploads/img.jpg`.
 ---
 
 
-For more details, see the code and comments in `sdk_server.py`.
+For more details, see the code and comments in `control_service.py`.

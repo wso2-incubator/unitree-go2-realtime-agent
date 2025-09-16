@@ -8,7 +8,7 @@ A real-time, voice agent that can be run on robots. This was specifically made f
 ## Features
 
 - Real-time transcription and voice response on a Textual Interface (TUI)
-- Modular, customizable tools and persona config (see `config.py`)
+- Modular, customizable tools and persona config (see `agent_config.py`)
 - Uses OpenAI's streaming Realtime API
 - Easily extensible for any robot, event, or conference
 
@@ -35,9 +35,9 @@ pip install -r requirements.txt
 ## Usage
 
 1. Copy `.env.example` to `.env` and fill in your OpenAI API key.
-2. Edit `config.py` to set your agent's persona, event, and tool configuration.
+2. Edit `agent_config.py` to set your agent's persona, event, and tool configuration.
 3. Run the Conference Service in `tools/` (Run `python conference_service.py` for WSO2Con mock example).
-4. Setup the Unitree Go2 SDK Server (Optional - Refer to instructions below)
+4. Setup the Unitree Go2 Control Service (Optional - Refer to instructions below)
 5. Run the app:
 
 ```bash
@@ -50,10 +50,10 @@ python main.py
 
 ## Customization
 
-- **Persona & Instructions:** Edit `config.py` to set the agent's name, event, and instructions.
-- **Tools:** Add or modify tools in `config.py` and implement their logic in `tools/`.
+- **Persona & Instructions:** Edit `agent_config.py` to set the agent's name, event, and instructions.
+- **Tools:** Add or modify tools in `agent_config.py` and implement their logic in `tools/`.
 - **Event Data:** Place markdown or data files in `data/` for info lookup.
-- **Mock Conference API:** See `tools/con_api.py` for a WSO2Con mock agenda and speaker API.
+- **Mock Conference API:** See `tools/conference_service.py` for a WSO2Con mock agenda and speaker API.
 
 
 ## File Structure
@@ -92,7 +92,7 @@ pip3 install -r requirements.txt
 ```
 
 
-### 3. Start the Flask SDK Server
+### 3. Start the Robot Control Service
 
 ```bash
 python3 control_service.py <network_interface>
