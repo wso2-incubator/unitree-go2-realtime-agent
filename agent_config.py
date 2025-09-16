@@ -113,7 +113,7 @@ tools = [{"type": "function",
                         "special_dance",
                         "stretch",
                     ],
-                    "description": "The action to perform (e.g. 'heart', 'forward', 'backward', 'turn_right', 'turn_left', 'dance', 'special_dance', 'stretch')"
+                    "description": "The action to perform (e.g. 'heart': action to sit and show a heart , 'forward': action to move forward, 'backward': action to move backward, 'turn_right': action to turn right, 'turn_left': action to turn left, 'dance': action to dance, 'special_dance': action to perform a special dance, 'stretch': action to stretch)"
                 }
             },
         "required": ["action"]
