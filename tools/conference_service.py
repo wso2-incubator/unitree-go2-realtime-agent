@@ -3,6 +3,8 @@ import uvicorn
 
 app = FastAPI(title="Conference Mock API", version="1.0.0")
 
+# This is a simple mock API for conference agenda and speakers. You can replace this with real data or a database as needed.
+
 @app.get("/agenda")
 def get_agenda():
 	"""Get the static mock event agenda."""

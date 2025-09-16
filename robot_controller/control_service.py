@@ -12,7 +12,7 @@ from unitree_sdk2py.go2.sport.sport_client import SportClient
 from unitree_sdk2py.go2.video.video_client import VideoClient
 
 dotenv.load_dotenv(override=True)
-FLASK_PORT = os.getenv("FLASK_PORT", 5051)
+flask_port = os.getenv("FLASK_PORT", 5051)
 
 # Create a lock to prevent concurrent /move and /action accesses
 operation_lock = threading.Lock()
@@ -258,4 +258,3 @@ if __name__ == "__main__":
         sys.exit(1)
     finally:
         logging.info("Flask server stopped")
-
