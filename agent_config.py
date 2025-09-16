@@ -69,14 +69,9 @@ tools = [{"type": "function",
     "name": "get_wso2con_speakers",
     "description": "Fetch information about WSO2Con speakers.",
     "parameters": {
-      "type": "object",
-      "properties": {
-        "topic": {
-          "type": "string",
-          "description": "A keyword related to the conference session or speaker"
-        }
-      },
-      "required": ["topic"]
+        "type": "object",
+        "properties": {},
+        "required": []
     }
   },
   {
@@ -84,14 +79,9 @@ tools = [{"type": "function",
     "name": "get_wso2con_agenda",
     "description": "Fetch agenda details for WSO2Con sessions.",
     "parameters": {
-      "type": "object",
-      "properties": {
-        "topic": {
-          "type": "string",
-          "description": "A keyword related to the conference session agenda"
-        }
-      },
-      "required": ["topic"]
+        "type": "object",
+        "properties": {},
+        "required": []
     }
   },
   {
