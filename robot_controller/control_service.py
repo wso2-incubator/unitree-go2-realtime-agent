@@ -1,9 +1,7 @@
 import os
 from flask import Flask, request, jsonify
 import sys
-import asyncio
 import time
-import requests
 import threading
 import datetime
 import dotenv
@@ -26,8 +24,8 @@ app = Flask(__name__)
 # Init SDK
 if len(sys.argv) < 2:
     print(f"Usage: python3 {sys.argv[0]} <network_interface>")
-    print("Example Default Mode: python3 flask_server.py eth0")
-    print("Example Test Mode: python3 flask_server.py test")
+    print("Example Default Mode: python3 control_service.py eth0")
+    print("Example Test Mode: python3 control_service.py test")
     sys.exit(1)
 
 if len(sys.argv) > 1:
@@ -252,7 +250,7 @@ def action(action_name):
 if __name__ == "__main__":
     #run the app and exit properly
     try:
-        logging.info(f"Starting Flask server on port {FLASK_PORT}")
+        logging.info(f"Starting Unitree Go2 Control Service on port {FLASK_PORT}")
         app.run(host='0.0.0.0', port=FLASK_PORT, debug=True, use_reloader=True)
     
     except Exception as e:
