@@ -1,0 +1,11 @@
+textual
+numpy
+pyaudio
+pydub
+sounddevice
+openai[realtime]
+python-dotenv
+flask
+aiohttp
+fastapi
+uvicorn
