@@ -5,6 +5,6 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "livekit-agents[silero,turn-detector]~=1.2",
+    "livekit-agents[openai,silero,turn-detector]~=1.2",
     "python-dotenv>=1.1.1",
 ]

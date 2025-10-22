@@ -89,3 +89,4 @@ hs_err_pid*
 replay_pid*
 
 livekit_examples/
+uv.lock

@@ -2,11 +2,11 @@ import json
 import logging
 import os
 import sys
-from dataclasses import dataclass
-from dotenv import load_dotenv
-from typing import AsyncIterable, Optional
-import re
 import asyncio
+import aiohttp
+import re
+from typing import AsyncIterable, Optional, Dict, Any
+from dotenv import load_dotenv
 
 from livekit import rtc
 from livekit.agents import (
@@ -16,8 +16,10 @@ from livekit.agents import (
     MetricsCollectedEvent,
     RoomInputOptions,
     RoomOutputOptions,
-    metrics,
     UserStateChangedEvent,
+    RunContext,
+    function_tool,
+    metrics,
 )
 
 from livekit.agents.voice import Agent, AgentSession
@@ -25,12 +27,16 @@ from livekit.plugins import openai, silero
 from livekit.plugins.turn_detector.english import EnglishModel
 
 from ..configs import agent_config
+from ..tools.info_lookup import load_all_docs, find_relevant_info
 
 logger = logging.getLogger("voice-assistant")
 load_dotenv()
 
+conf_api_base_url = os.getenv('CONF_API_BASE_URL', 'http://localhost:5100')
+robot_service_host = os.getenv('ROBOT_SERVICE_HOST', 'http://localhost:5051')
+
 class WakeupAgent(Agent):
-    """Agent specialized for wake word detection using Self Hosted STT or Just by OpenAI"""
+    """Agent specialized for wake word detection using Vosk (self-hosted STT)"""
     
     def __init__(self) -> None:
 
@@ -38,7 +44,7 @@ class WakeupAgent(Agent):
 
         super().__init__(
             instructions=agent_config.wakeup_agent_instructions,
-            stt=openai.STT(),  # use a openai compatible STT locally. 
+            stt=openai.STT(language=agent_config.wakeup_agent_language),  # use a openai compatible STT locally otherwise it takes openai service. 
             tts=openai.TTS(voice=agent_config.voice),
         )
 
@@ -90,24 +96,112 @@ class WakeupAgent(Agent):
 
 
 class ConversationalAgent(Agent):
-    """Agent specialized for conversation handling using OpenAI STT for accuracy"""
+    """Agent specialized for conversation handling using OpenAI realtime model"""
     
     def __init__(self, initial_query: str = "") -> None:
-
         self.initial_query = initial_query
         
         super().__init__(
             instructions=agent_config.conversational_agent_instructions,
-            # stt=openai.STT(), 
             llm=openai.realtime.RealtimeModel(voice=agent_config.voice),
-            tts=openai.TTS(voice=agent_config.voice),  
-            tools=agent_config.tools,
+            tts=openai.TTS(voice=agent_config.voice),
         )
+
+    @function_tool(raw_schema=agent_config.tools[0])
+    async def get_wso2_info(self, raw_arguments: Dict[str, Any], ctx: RunContext) -> str:
+        """Get information about specific WSO2 products."""
+        topic = raw_arguments.get("topic", "")
+        logger.info(f"Looking up WSO2 info for topic: {topic}")
+        
+        docs = load_all_docs()
+        return find_relevant_info(topic, docs)
+
+    @function_tool(raw_schema=agent_config.tools[1])
+    async def get_wso2con_speakers(self, raw_arguments: Dict[str, Any], ctx: RunContext) -> str:
+        """Fetch information about WSO2Con speakers."""
+        try:
+            logger.info("Fetching WSO2Con speakers info via HTTP")
+            url = f"{conf_api_base_url}/speakers"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        return f"WSO2Con speakers: {data}"
+                    else:
+                        error_data = await response.json()
+                        return f"Speakers fetch failed: {error_data.get('error', 'Unknown error')}"
+        except asyncio.TimeoutError:
+            return "Request timed out for speakers info"
+        except Exception as e:
+            logger.exception("Exception during get_wso2con_speakers")
+            return f"Failed to fetch speakers: {e}"
+
+    @function_tool(raw_schema=agent_config.tools[2])
+    async def get_wso2con_agenda(self, raw_arguments: Dict[str, Any], ctx: RunContext) -> str:
+        """Fetch agenda details for WSO2Con sessions."""
+        try:
+            logger.info("Fetching WSO2Con agenda info via HTTP")
+            url = f"{conf_api_base_url}/agenda"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        return f"WSO2Con agenda: {data}"
+                    else:
+                        error_data = await response.json()
+                        return f"Agenda fetch failed: {error_data.get('error', 'Unknown error')}"
+        except asyncio.TimeoutError:
+            return "Request timed out for agenda info"
+        except Exception as e:
+            logger.exception("Exception during get_wso2con_agenda")
+            return f"Failed to fetch agenda: {e}"
+
+    @function_tool(raw_schema=agent_config.tools[3])
+    async def take_photo(self, raw_arguments: Dict[str, Any], ctx: RunContext) -> str:
+        """Command the Unitree Go2 robot to take a photo."""
+        try:
+            logger.info("Handling Go2 action via HTTP: take_photo")
+            url = f"{robot_service_host}/take_photo"
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        return f"Photo taken successfully! {data.get('status', '')}"
+                    else:
+                        error_data = await response.json()
+                        return f"Failed to take photo: {error_data.get('error', 'Unknown error')}"
+        except asyncio.TimeoutError:
+            return "Request timed out for photo"
+        except Exception as e:
+            logger.exception("Exception during take_photo")
+            return f"Failed to take photo: {e}"
+
+    @function_tool(raw_schema=agent_config.tools[4])
+    async def control_go2(self, raw_arguments: Dict[str, Any], ctx: RunContext) -> str:
+        """Send an action command to the Unitree Go2 robot."""
+        action = raw_arguments.get("action", "")
+        api_timeout = 60
+        logger.info(f"Handling Go2 action via HTTP: {action}")
+        url = f"{robot_service_host}/action/{action.lower()}"
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, timeout=api_timeout) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        return f"Action '{action}' completed successfully! {data.get('status', '')}"
+                    else:
+                        error_data = await response.json()
+                        return f"Action '{action}' failed: {error_data.get('error', 'Unknown error')}"
+        except asyncio.TimeoutError:
+            return f"Request timed out for action '{action}'"
+        except Exception as e:
+            logger.exception(f"Exception during control_go2 action: {action}")
+            return f"Failed to perform '{action}': {e}"
 
     async def on_enter(self):
         logger.info("ConversationalAgent activated")
-        #logger.info(f"User identified as: {self.user_name}") #Future Integration with Face Recognition
-    
+        await self.session.say("Hello! I'm Go2, your W S O 2 Con assistant robot. How can I help you today?")
 
     async def on_user_turn_completed(self, turn_ctx, new_message=None):
         result = await super().on_user_turn_completed(turn_ctx, new_message)
@@ -135,7 +229,7 @@ async def entrypoint(ctx: JobContext):
 
     async def handle_inactivity():
         """Handle inactivity by switching back to WakeupAgent"""
-        logger.info(f"User has been inactive for {agent_config.user_away_timeout_seconds} seconds - switching back to WakeupAgent")
+        logger.info("User has been inactive for 30 seconds - switching back to WakeupAgent")
         
         try:
             current_agent = session._agent

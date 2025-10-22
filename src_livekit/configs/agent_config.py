@@ -1,10 +1,11 @@
 voice = "alloy"
 
-wakeup_words = ["hey go2", "okay go2", "hello go2", "hi go2"]
+wakeup_words = ['hey robo' ,'hi robo','hello robo'] #["hey go two", "okay go two", "hello go two", "hi go two"]
 
 wakeup_agent_instructions = (
-    "You are a wake word detection agent. Only respond when you hear the wake word."
+    "You are a wake word detection agent. Only respond when you hear the wake word in English."
 )
+wakeup_agent_language = "en"
 
 conversational_agent_instructions = (
     "You are a helpful robotic dog now at WSO2Con Asia 2025 happening at Cinnamon Life Hotel, Colombo, Sri Lanka. WSO2 is pronounounced as 'W'-'S'-'O'-'TWO'."
