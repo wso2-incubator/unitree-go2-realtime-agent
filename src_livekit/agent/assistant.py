@@ -20,6 +20,7 @@ from livekit.agents import (
     RunContext,
     function_tool,
     metrics,
+    CloseEvent,
 )
 
 from livekit.agents.voice import Agent, AgentSession
@@ -32,8 +33,8 @@ from ..tools.info_lookup import load_all_docs, find_relevant_info
 logger = logging.getLogger("voice-assistant")
 load_dotenv()
 
-conf_api_base_url = os.getenv('CONF_API_BASE_URL', 'http://localhost:5100')
-robot_service_host = os.getenv('ROBOT_SERVICE_HOST', 'http://localhost:5051')
+conf_api_base_url = os.environ.get("CONF_API_BASE_URL")
+robot_service_host = os.environ.get("ROBOT_SERVICE__HOST")
 
 class WakeupAgent(Agent):
     """Agent specialized for wake word detection using Vosk (self-hosted STT)"""
@@ -121,7 +122,13 @@ class ConversationalAgent(Agent):
         """Fetch information about WSO2Con speakers."""
         try:
             logger.info("Fetching WSO2Con speakers info via HTTP")
-            url = f"{conf_api_base_url}/speakers"
+            base_url = conf_api_base_url
+            if not base_url.startswith(('http://', 'https://')):
+                base_url = f"http://{base_url}"
+            
+            url = f"{base_url}/speakers"
+            logger.info(f"Making request to: {url}")
+            
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
                     if response.status == 200:
@@ -133,7 +140,7 @@ class ConversationalAgent(Agent):
         except asyncio.TimeoutError:
             return "Request timed out for speakers info"
         except Exception as e:
-            logger.exception("Exception during get_wso2con_speakers")
+            logger.exception(f"Exception during get_wso2con_speakers: URL was {url}")
             return f"Failed to fetch speakers: {e}"
 
     @function_tool(raw_schema=agent_config.tools[2])
@@ -141,7 +148,13 @@ class ConversationalAgent(Agent):
         """Fetch agenda details for WSO2Con sessions."""
         try:
             logger.info("Fetching WSO2Con agenda info via HTTP")
-            url = f"{conf_api_base_url}/agenda"
+            base_url = conf_api_base_url
+            if not base_url.startswith(('http://', 'https://')):
+                base_url = f"http://{base_url}"
+            
+            url = f"{base_url}/agenda"
+            logger.info(f"Making request to: {url}")
+            
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
                     if response.status == 200:
@@ -153,7 +166,7 @@ class ConversationalAgent(Agent):
         except asyncio.TimeoutError:
             return "Request timed out for agenda info"
         except Exception as e:
-            logger.exception("Exception during get_wso2con_agenda")
+            logger.exception(f"Exception during get_wso2con_agenda: URL was {url}")
             return f"Failed to fetch agenda: {e}"
 
     @function_tool(raw_schema=agent_config.tools[3])
@@ -161,7 +174,13 @@ class ConversationalAgent(Agent):
         """Command the Unitree Go2 robot to take a photo."""
         try:
             logger.info("Handling Go2 action via HTTP: take_photo")
-            url = f"{robot_service_host}/take_photo"
+            base_url = robot_service_host
+            if not base_url.startswith(('http://', 'https://')):
+                base_url = f"http://{base_url}"
+            
+            url = f"{base_url}/take_photo"
+            logger.info(f"Making request to: {url}")
+            
             async with aiohttp.ClientSession() as session:
                 async with session.post(url) as response:
                     if response.status == 200:
@@ -173,7 +192,7 @@ class ConversationalAgent(Agent):
         except asyncio.TimeoutError:
             return "Request timed out for photo"
         except Exception as e:
-            logger.exception("Exception during take_photo")
+            logger.exception(f"Exception during take_photo: URL was {url}")
             return f"Failed to take photo: {e}"
 
     @function_tool(raw_schema=agent_config.tools[4])
@@ -182,7 +201,13 @@ class ConversationalAgent(Agent):
         action = raw_arguments.get("action", "")
         api_timeout = 60
         logger.info(f"Handling Go2 action via HTTP: {action}")
-        url = f"{robot_service_host}/action/{action.lower()}"
+        
+        base_url = robot_service_host
+        if not base_url.startswith(('http://', 'https://')):
+            base_url = f"http://{base_url}"
+        
+        url = f"{base_url}/action/{action.lower()}"
+        logger.info(f"Making request to: {url}")
 
         try:
             async with aiohttp.ClientSession() as session:
@@ -196,7 +221,7 @@ class ConversationalAgent(Agent):
         except asyncio.TimeoutError:
             return f"Request timed out for action '{action}'"
         except Exception as e:
-            logger.exception(f"Exception during control_go2 action: {action}")
+            logger.exception(f"Exception during control_go2 action: {action} URL was {url}")
             return f"Failed to perform '{action}': {e}"
 
     async def on_enter(self):
@@ -223,7 +248,14 @@ async def entrypoint(ctx: JobContext):
         min_interruption_duration=agent_config.min_interruption_duration,
         user_away_timeout=float(agent_config.user_away_timeout_seconds),  
     )
-
+    
+    @session.on("close")
+    def on_close(ev: CloseEvent):
+        """This function is called when the session is closed, for any reason."""
+        logger.info(f"Agent session closed, reason: {ev.reason}")
+        if os.name != 'nt':
+            os.system('stty sane')
+    
     usage_collector = metrics.UsageCollector()
     inactivity_task: asyncio.Task | None = None
 
