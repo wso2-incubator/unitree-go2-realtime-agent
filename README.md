@@ -74,6 +74,26 @@ Controls:
 
 ## File Structure
 
+unitree-go2-realtime-agent/
+├── .env.example                 # Example environment variables file
+├── .env                         # Environment variables file (user-specific)
+├── .gitignore                   # Git ignore rules
+├── LICENSE                      # Apache 2.0 license file
+├── [README.md]                  # This README file
+├── [issue_template.md]          # Issue template for GitHub
+├── [main-livekit.py]            # Main entry point for LiveKit agent
+├── [pull_request_template.md]   # Pull request template for GitHub
+├── [pyproject.toml]             # Project configuration (dependencies, etc.)
+├── data/                        # Markdown files for WSO2 product information
+├── robot_controller/            # Unitree Go2 robot control service
+└── src_livekit/                 # LiveKit agent source code
+    ├── agent/
+    │   └── [assistant.py]       # Main agent implementation
+    ├── configs/
+    │   └── [agent_config.py]    # Agent configuration (persona, tools, endpoints)
+    └── tools/
+        ├── [conference_service.py] # Mock conference service implementation
+        └── [info_lookup.py]     # Tool for looking up WSO2 product info
 
 # Unitree Go2 Control Service(for robot control) - Python 3.11.9 recommended
 
