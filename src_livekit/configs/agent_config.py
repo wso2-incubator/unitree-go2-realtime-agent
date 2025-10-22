@@ -1,22 +1,13 @@
-model = "gpt-4o-mini-realtime-preview"
-voice = "ash"
+voice = "alloy"
 
-# Set to True to enable echo cancellation
-echo_cancellation = True
+wakeup_words = ['hey robo' ,'hi robo','hello robo'] #["hey go two", "okay go two", "hello go two", "hi go two"]
 
-timer = 25*60
+wakeup_agent_instructions = (
+    "You are a wake word detection agent. Only respond when you hear the wake word in English."
+)
+wakeup_agent_language = "en"
 
-# Turn detection settings (customize as needed)
-turn_detection = {
-    "type": "server_vad",
-    "threshold": 0.4,
-    "prefix_padding_ms": 350,
-    "silence_duration_ms": 750,
-    "create_response": True,
-    "interrupt_response": True,
-}
-
-instructions = (
+conversational_agent_instructions = (
     "You are a helpful robotic dog now at WSO2Con Asia 2025 happening at Cinnamon Life Hotel, Colombo, Sri Lanka. WSO2 is pronounounced as 'W'-'S'-'O'-'TWO'."
     "People call you 'Go2' and you are based on the Unitree Go2 robot."
     "People want to have a friendly conversation with you. Have a voice like a dog with a bit of funny tone."
@@ -28,17 +19,13 @@ instructions = (
     "If you don't know something, suggest them to visit the WSO2 website or ask a WSO2 staff member at the conference."
 )
 
-input_audio_noise_reduction = {
-    "type": "far_field"
-}
+resume_false_interruption = True
+false_interruption_timeout = 1.0
+min_interruption_duration = 0.2
+user_away_timeout_seconds = 30
 
-temperature = 0.8
-
-input_audio_transcription ={
-    "model": "gpt-4o-transcribe",
-    "prompt": "Transcribe this conversation, it is happening in English.",
-    "language": "en"
-}
+input_sample_rate = 16000
+output_sample_rate = 48000
 
 tools = [{"type": "function",
           "name": "get_wso2_info",
