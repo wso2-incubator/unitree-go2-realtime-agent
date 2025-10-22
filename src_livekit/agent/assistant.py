@@ -39,8 +39,8 @@ robot_service_host = os.environ.get("ROBOT_SERVICE__HOST")
 class WakeupAgent(Agent):
     """Agent specialized for wake word detection using Vosk (self-hosted STT)"""
     
-    def __init__(self) -> None:
-
+    def __init__(self, skip_greeting: bool = False) -> None:
+        self.skip_greeting = skip_greeting
         self.wake_words = agent_config.wakeup_words
 
         super().__init__(
@@ -51,7 +51,8 @@ class WakeupAgent(Agent):
 
     async def on_enter(self):
         logger.info("WakeupAgent activated - listening for wake words")
-        self.session.say("Hello There! Please say the wake word when you're ready.")
+        if not self.skip_greeting:
+            self.session.say("Hello There! Please say the wake word when you're ready.")
 
     def stt_node(
         self,
@@ -94,7 +95,6 @@ class WakeupAgent(Agent):
                     yield event
 
         return process_stream()
-
 
 class ConversationalAgent(Agent):
     """Agent specialized for conversation handling using OpenAI realtime model"""
@@ -272,7 +272,7 @@ async def entrypoint(ctx: JobContext):
                 
                 await asyncio.sleep(2)
                 
-                session.update_agent(WakeupAgent())
+                session.update_agent(WakeupAgent(skip_greeting=True))
             else:
                 logger.debug("Already in WakeupAgent, no switch needed")
                 
@@ -303,7 +303,7 @@ async def entrypoint(ctx: JobContext):
         usage_collector.collect(ev.metrics)
 
     await session.start(
-        agent=WakeupAgent(),
+        agent=WakeupAgent(), 
         room=ctx.room,
         room_input_options=RoomInputOptions(audio_sample_rate=agent_config.input_sample_rate),
         room_output_options=RoomOutputOptions(audio_sample_rate=agent_config.output_sample_rate),
